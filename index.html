@@ -6,7 +6,7 @@
   <title>L'Étang Magique : Le Cycle de Vie de la Grenouille</title>
   <meta name="description" content="Jeu ludo-éducatif 2D interactif et autonome explorant la métamorphose complète de la grenouille dans un étang nocturne féerique.">
 
-  <!-- Tailwind CSS via CDN pour un rendu visuel immédiat sans configuration ni build -->
+  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -25,7 +25,7 @@
     }
   </script>
 
-  <!-- Styles CSS complets intégrés -->
+  <!-- Styles CSS complets -->
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -268,6 +268,7 @@
     .pond-image-layer {
       width: 100%;
       height: 100%;
+      object-fit: cover;
       display: block;
     }
     .waterline-split {
@@ -590,9 +591,18 @@
           </button>
         </div>
 
-        <!-- Scène visuelle : Illustration vectorielle SVG 100% autonome et immédiate -->
+        <!-- Scène visuelle : Image principale avec secours vectoriel -->
         <div class="pond-viewport" id="pondViewport" onclick="handlePondClick(event)">
-          <svg id="svgPondFallback" class="pond-image-layer" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+          <img 
+            src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1600&auto=format&fit=crop" 
+            alt="Étang magique nocturne"
+            class="pond-image-layer"
+            style="opacity: 0.35; filter: hue-rotate(180deg);"
+            onerror="this.style.display='none'; document.getElementById('svgPondFallback').style.display='block';"
+          />
+
+          <!-- Illustration vectorielle SVG de secours intégrée -->
+          <svg id="svgPondFallback" class="pond-image-layer" style="display: none;" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#020617"/>
@@ -810,9 +820,8 @@
     L'Étang Magique · Application ludo-éducative 2D autonome (HTML5, Tailwind, Web Audio API)
   </footer>
 
-  <!-- Scripts JavaScript complets intégrés -->
+  <!-- Scripts JavaScript -->
   <script>
-    // --- Données Biologiques de la Métamorphose ---
     const STAGES = [
       {
         id: 1,
@@ -871,7 +880,6 @@
       }
     ];
 
-    // --- Navigation entre les vues ---
     function switchTab(tabId) {
       ['pond', 'cycle', 'puzzle', 'quiz'].forEach(t => {
         const view = document.getElementById('view-' + t);
@@ -888,7 +896,6 @@
       if (tabId === 'quiz') initQuizGame();
     }
 
-    // --- Gestion de la modale d'étape ---
     function openStageModal(stageId) {
       const stage = STAGES.find(s => s.id === stageId);
       if (!stage) return;
@@ -907,7 +914,6 @@
       document.getElementById('stageModal').classList.remove('open');
     }
 
-    // --- Filtres de zones ---
     function setZoneFilter(filter) {
       ['all', 'underwater', 'surface'].forEach(f => {
         const btn = document.getElementById('filter-' + f);
@@ -935,7 +941,6 @@
       });
     }
 
-    // --- Mode Observateur ---
     let observationActive = false;
     function toggleObservationMode() {
       observationActive = !observationActive;
@@ -970,7 +975,6 @@
       if (closest) openStageModal(closest.id);
     }
 
-    // --- Vue Cycle Biologique ---
     function renderCycleView() {
       const container = document.getElementById('cycleCardsContainer');
       if (!container) return;
@@ -991,7 +995,6 @@
       `).join('');
     }
 
-    // --- Jeu du Puzzle ---
     let puzzleOrder = [];
     function initPuzzleGame() {
       puzzleOrder = [1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
@@ -1040,33 +1043,12 @@
       }
     }
 
-    // --- Quiz du Naturaliste ---
     const QUIZ_QUESTIONS = [
-      {
-        q: "Combien de temps durent généralement les œufs avant d'éclore ?",
-        options: ["1 à 2 jours", "6 à 21 jours", "6 mois"],
-        correct: 1
-      },
-      {
-        q: "De quoi se nourrit principalement le jeune têtard nageur ?",
-        options: ["De micro-algues et diatomées (herbivore)", "De petits poissons vivants", "De nectar de fleurs"],
-        correct: 0
-      },
-      {
-        q: "Quelles pattes sortent en premier lors de la métamorphose du têtard ?",
-        options: ["Les pattes avant", "Les deux en même temps", "Les pattes arrière"],
-        correct: 2
-      },
-      {
-        q: "Que devient la queue du têtard lorsque la grenouillette grandit ?",
-        options: ["Elle tombe au fond de l'eau", "Elle est résorbée de l'intérieur pour donner de l'énergie", "Elle se transforme en nageoire dorsale"],
-        correct: 1
-      },
-      {
-        q: "Comment la grenouille adulte boit-elle l'eau dont elle a besoin ?",
-        options: ["En aspirant l'eau par sa bouche", "Elle ne boit jamais", "Directement à travers sa peau humide"],
-        correct: 2
-      }
+      { q: "Combien de temps durent généralement les œufs avant d'éclore ?", options: ["1 à 2 jours", "6 à 21 jours", "6 mois"], correct: 1 },
+      { q: "De quoi se nourrit principalement le jeune têtard nageur ?", options: ["De micro-algues et diatomées (herbivore)", "De petits poissons vivants", "De nectar de fleurs"], correct: 0 },
+      { q: "Quelles pattes sortent en premier lors de la métamorphose du têtard ?", options: ["Les pattes avant", "Les deux en même temps", "Les pattes arrière"], correct: 2 },
+      { q: "Que devient la queue du têtard lorsque la grenouillette grandit ?", options: ["Elle tombe au fond de l'eau", "Elle est résorbée de l'intérieur pour donner de l'énergie", "Elle se transforme en nageoire dorsale"], correct: 1 },
+      { q: "Comment la grenouille adulte boit-elle l'eau dont elle a besoin ?", options: ["En aspirant l'eau par sa bouche", "Elle ne boit jamais", "Directement à travers sa peau humide"], correct: 2 }
     ];
 
     let currentQuizIdx = 0;
@@ -1110,7 +1092,6 @@
       renderQuizQuestion();
     }
 
-    // --- Audio d'ambiance (Web Audio API) ---
     let audioCtx = null;
     let isPlaying = false;
     let timerId = null;
@@ -1121,12 +1102,8 @@
       const text = document.getElementById('audioText');
 
       if (!isPlaying) {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         isPlaying = true;
         btn.classList.add('active');
         icon.textContent = '🔊';
@@ -1148,10 +1125,8 @@
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(freq * 0.75, audioCtx.currentTime + 0.15);
-      
       gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
-
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
@@ -1161,13 +1136,8 @@
     function startFrogChorus() {
       if (!isPlaying) return;
       const freqs = [110, 130, 145, 95, 165];
-      const randFreq = freqs[Math.floor(Math.random() * freqs.length)];
-      playCrocNote(randFreq);
-      if (Math.random() > 0.4) {
-        setTimeout(() => playCrocNote(randFreq * 1.15), 120);
-      }
-      const nextTime = Math.random() * 2500 + 1200;
-      timerId = setTimeout(startFrogChorus, nextTime);
+      playCrocNote(freqs[Math.floor(Math.random() * freqs.length)]);
+      timerId = setTimeout(startFrogChorus, Math.random() * 2500 + 1200);
     }
   </script>
 </body>

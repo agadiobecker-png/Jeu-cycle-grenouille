@@ -25,9 +25,8 @@
     }
   </script>
 
-  <!-- Styles CSS complets intégrés (autonomes même sans connexion Internet) -->
+  <!-- Styles CSS complets intégrés -->
   <style>
-    /* Reset & variables de base */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -54,7 +53,6 @@
       overflow-x: hidden;
     }
 
-    /* Halo lumineux ambiant */
     .ambient-glow {
       position: fixed;
       inset: 0;
@@ -66,7 +64,6 @@
         radial-gradient(circle at 50% 85%, rgba(245, 158, 11, 0.10) 0%, transparent 55%);
     }
 
-    /* Barre supérieure de navigation */
     header {
       position: sticky;
       top: 0;
@@ -146,7 +143,6 @@
       box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
     }
 
-    /* Conteneur principal */
     main {
       position: relative;
       z-index: 10;
@@ -157,7 +153,6 @@
       width: 100%;
     }
 
-    /* Bannière Hero */
     .hero {
       text-align: center;
       margin-bottom: 2.25rem;
@@ -193,7 +188,6 @@
       line-height: 1.6;
     }
 
-    /* Cadre de l'étang interactif */
     .pond-card {
       background: var(--panel-bg);
       border: 1px solid var(--border-emerald);
@@ -263,7 +257,6 @@
       color: #fde68a;
     }
 
-    /* Scène de l'Étang & Vue en coupe */
     .pond-viewport {
       position: relative;
       width: 100%;
@@ -275,7 +268,6 @@
     .pond-image-layer {
       width: 100%;
       height: 100%;
-      object-fit: cover;
       display: block;
     }
     .waterline-split {
@@ -300,7 +292,6 @@
       border-radius: 0.25rem;
     }
 
-    /* Balises interactives (Hotspots) */
     .hotspot {
       position: absolute;
       transform: translate(-50%, -50%);
@@ -345,7 +336,6 @@
       100% { transform: scale(0.85); opacity: 0; }
     }
 
-    /* Bandeau d'étapes en bas */
     .steps-strip {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -383,7 +373,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Fenêtre modale d'inspection */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -474,7 +463,6 @@
       line-height: 1.5;
     }
 
-    /* Cartes de sections & Mini-Jeux */
     .game-section {
       background: var(--panel-bg);
       border: 1px solid var(--border-emerald);
@@ -532,7 +520,6 @@
       color: #ffffff;
     }
 
-    /* Pied de page */
     footer {
       border-top: 1px solid #1e293b;
       padding: 1.75rem;
@@ -542,7 +529,6 @@
       background: #020617;
     }
 
-    /* Adaptabilité mobile */
     @media (max-width: 768px) {
       .steps-strip, .slots-container {
         grid-template-columns: repeat(2, 1fr);
@@ -604,17 +590,9 @@
           </button>
         </div>
 
-        <!-- Scène visuelle : Image principale avec secours vectoriel SVG 100% autonome -->
+        <!-- Scène visuelle : Illustration vectorielle SVG 100% autonome et immédiate -->
         <div class="pond-viewport" id="pondViewport" onclick="handlePondClick(event)">
-          <img 
-            src="/src/assets/images/frog_lifecycle_magical_pond_1792904187753.jpg" 
-            alt="Cycle de la grenouille dans un étang nocturne magique"
-            class="pond-image-layer"
-            onerror="this.style.display='none'; document.getElementById('svgPondFallback').style.display='block';"
-          />
-
-          <!-- Illustration vectorielle SVG autonome intégrée -->
-          <svg id="svgPondFallback" class="pond-image-layer" style="display: none;" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+          <svg id="svgPondFallback" class="pond-image-layer" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#020617"/>
@@ -883,359 +861,313 @@
       {
         id: 5,
         name: "La Grenouille Adulte",
-        scientific: "Anura (Ranidae)",
-        duration: "Plusieurs années (5 à 12 ans)",
-        habitat: "Grands nénuphars, étangs calmes et lisières",
-        respiration: "Poumons & peau continuellement humide",
-        diet: "Chasseresse carnivore (mouches, libellules, vers)",
-        desc: "Reine incontestée de l'étang sous le clair de lune, la grenouille adulte saute sur ses puissantes pattes palmées et fait retentir son chant nuptial.",
-        secret: "Une grenouille peut boire de l'eau directement par la peau perméable de son ventre sans jamais ouvrir la bouche !"
+        scientific: "Adulte anoure reproducteur",
+        duration: "Plusieurs années",
+        habitat: "Berges, nénuphars et l'eau de l'étang",
+        respiration: "Pulmonaire et cutanée (peau humide)",
+        diet: "Insectes volants, vers et petits mollusques",
+        desc: "Parfaitement adaptée à la vie amphibie, la grenouille adulte chante la nuit pour attirer ses congénères et perpétuer le cycle magique de la vie.",
+        secret: "Elle peut absorber l'eau dont elle a besoin directement à travers sa peau, sans jamais avoir besoin de boire par la bouche !"
       }
     ];
 
-    // --- Synthétiseur Sonore Web Audio API ---
-    let audioCtx = null;
-    let ambienceTimer = null;
-    let isAudioOn = false;
-
-    function getAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
-
-    function playDrop() {
-      try {
-        const ctx = getAudio();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const t = ctx.currentTime;
-        osc.frequency.setValueAtTime(600, t);
-        osc.frequency.exponentialRampToValueAtTime(1400, t + 0.08);
-        osc.frequency.exponentialRampToValueAtTime(400, t + 0.16);
-        gain.gain.setValueAtTime(0.2, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t);
-        osc.stop(t + 0.2);
-      } catch (e) {}
-    }
-
-    function playCroak() {
-      try {
-        const ctx = getAudio();
-        const t = ctx.currentTime;
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
-        const filter = ctx.createBiquadFilter();
-        const gain = ctx.createGain();
-        osc1.type = 'sawtooth';
-        osc2.type = 'square';
-        osc1.frequency.setValueAtTime(120, t);
-        osc1.frequency.linearRampToValueAtTime(95, t + 0.14);
-        osc2.frequency.setValueAtTime(160, t);
-        osc2.frequency.linearRampToValueAtTime(130, t + 0.14);
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(450, t);
-        filter.Q.setValueAtTime(4.0, t);
-        gain.gain.setValueAtTime(0.18, t);
-        gain.gain.exponentialRampToValueAtTime(0.005, t + 0.28);
-        osc1.connect(filter);
-        osc2.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctx.destination);
-        osc1.start(t);
-        osc2.start(t);
-        osc1.stop(t + 0.3);
-        osc2.stop(t + 0.3);
-      } catch (e) {}
-    }
-
-    function playChime() {
-      try {
-        const ctx = getAudio();
-        const t = ctx.currentTime;
-        [1046.5, 1318.5, 1567.98, 2093.0].forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, t + i * 0.06);
-          gain.gain.setValueAtTime(0.08, t + i * 0.06);
-          gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.4);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(t + i * 0.06);
-          osc.stop(t + i * 0.06 + 0.45);
-        });
-      } catch (e) {}
-    }
-
-    function toggleAmbience() {
-      isAudioOn = !isAudioOn;
-      const btn = document.getElementById('audioToggleBtn');
-      const text = document.getElementById('audioText');
-      const icon = document.getElementById('audioIcon');
-
-      if (isAudioOn) {
-        btn.classList.add('active');
-        text.innerText = "Ambiance Active";
-        icon.innerText = "🔊";
-        playChime();
-        ambienceTimer = setInterval(() => {
-          if (!isAudioOn) return;
-          const r = Math.random();
-          if (r < 0.4) playDrop();
-          else if (r < 0.75) playCroak();
-          else playChime();
-        }, 4000);
-      } else {
-        btn.classList.remove('active');
-        text.innerText = "Ambiance Silencieuse";
-        icon.innerText = "🔈";
-        if (ambienceTimer) clearInterval(ambienceTimer);
-      }
-    }
-
-    // --- Navigation par Onglets ---
-    function switchTab(tab) {
-      playDrop();
+    // --- Navigation entre les vues ---
+    function switchTab(tabId) {
       ['pond', 'cycle', 'puzzle', 'quiz'].forEach(t => {
-        document.getElementById('view-' + t).style.display = (t === tab) ? 'block' : 'none';
-        const navBtn = document.getElementById('nav-' + t);
-        if (navBtn) {
-          if (t === tab) navBtn.classList.add('active');
-          else navBtn.classList.remove('active');
+        const view = document.getElementById('view-' + t);
+        const nav = document.getElementById('nav-' + t);
+        if (view) view.style.display = (t === tabId) ? 'block' : 'none';
+        if (nav) {
+          if (t === tabId) nav.classList.add('active');
+          else nav.classList.remove('active');
         }
       });
-      if (tab === 'cycle') renderCycleCards();
-      if (tab === 'puzzle') initPuzzleGame();
-      if (tab === 'quiz') initQuiz();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (tabId === 'cycle') renderCycleView();
+      if (tabId === 'puzzle') initPuzzleGame();
+      if (tabId === 'quiz') initQuizGame();
     }
 
-    // --- Gestion de la Modale d'Étape ---
+    // --- Gestion de la modale d'étape ---
     function openStageModal(stageId) {
       const stage = STAGES.find(s => s.id === stageId);
       if (!stage) return;
-      if (stageId === 5) playCroak();
-      else playDrop();
-
-      document.getElementById('modalTitle').innerText = stage.name;
-      document.getElementById('modalScientific').innerText = stage.scientific;
-      document.getElementById('modalDesc').innerText = stage.desc;
-      document.getElementById('modalDuration').innerText = stage.duration;
-      document.getElementById('modalHabitat').innerText = stage.habitat;
-      document.getElementById('modalResp').innerText = stage.respiration;
-      document.getElementById('modalDiet').innerText = stage.diet;
-      document.getElementById('modalSecret').innerText = stage.secret;
-
+      document.getElementById('modalTitle').textContent = `Étape ${stage.id} : ${stage.name}`;
+      document.getElementById('modalScientific').textContent = stage.scientific;
+      document.getElementById('modalDesc').textContent = stage.desc;
+      document.getElementById('modalDuration').textContent = stage.duration;
+      document.getElementById('modalHabitat').textContent = stage.habitat;
+      document.getElementById('modalResp').textContent = stage.respiration;
+      document.getElementById('modalDiet').textContent = stage.diet;
+      document.getElementById('modalSecret').textContent = stage.secret;
       document.getElementById('stageModal').classList.add('open');
     }
 
-    function closeStageModal(e) {
+    function closeStageModal() {
       document.getElementById('stageModal').classList.remove('open');
     }
 
-    // --- Filtres de Zone ---
-    function setZoneFilter(zone) {
-      playDrop();
-      ['all', 'underwater', 'surface'].forEach(z => {
-        const btn = document.getElementById('filter-' + z);
-        if (z === zone) btn.classList.add('active');
-        else btn.classList.remove('active');
+    // --- Filtres de zones ---
+    function setZoneFilter(filter) {
+      ['all', 'underwater', 'surface'].forEach(f => {
+        const btn = document.getElementById('filter-' + f);
+        if (btn) {
+          if (f === filter) btn.classList.add('active');
+          else btn.classList.remove('active');
+        }
       });
-
-      const pin1 = document.getElementById('pin-1');
-      const pin2 = document.getElementById('pin-2');
-      const pin3 = document.getElementById('pin-3');
-      const pin4 = document.getElementById('pin-4');
-      const pin5 = document.getElementById('pin-5');
-
-      if (zone === 'all') {
-        [pin1, pin2, pin3, pin4, pin5].forEach(p => p.style.display = 'block');
-      } else if (zone === 'underwater') {
-        [pin1, pin2, pin3].forEach(p => p.style.display = 'block');
-        [pin4, pin5].forEach(p => p.style.display = 'none');
-      } else {
-        [pin1, pin2, pin3].forEach(p => p.style.display = 'none');
-        [pin4, pin5].forEach(p => p.style.display = 'block');
-      }
+      const pins = [
+        { id: 'pin-1', zone: 'underwater' },
+        { id: 'pin-2', zone: 'underwater' },
+        { id: 'pin-3', zone: 'underwater' },
+        { id: 'pin-4', zone: 'surface' },
+        { id: 'pin-5', zone: 'surface' }
+      ];
+      pins.forEach(p => {
+        const el = document.getElementById(p.id);
+        if (el) {
+          if (filter === 'all' || p.zone === filter) {
+            el.style.display = 'block';
+          } else {
+            el.style.display = 'none';
+          }
+        }
+      });
     }
 
     // --- Mode Observateur ---
-    let observationMode = false;
+    let observationActive = false;
     function toggleObservationMode() {
-      observationMode = !observationMode;
+      observationActive = !observationActive;
       const btn = document.getElementById('obsModeBtn');
-      if (observationMode) {
-        btn.classList.add('active');
-        btn.innerText = "🔍 Mode Observateur Actif";
-        alert("Mode Observateur : Clique sur l'étang pour explorer les secrets (les œufs à gauche, les têtards au centre, la grenouille sur le nénuphar !)");
-      } else {
-        btn.classList.remove('active');
-        btn.innerText = "🔍 Mode Observateur";
+      if (btn) {
+        if (observationActive) btn.classList.add('active');
+        else btn.classList.remove('active');
       }
     }
 
-    function handlePondClick(e) {
-      if (!observationMode) return;
-      playChime();
+    function handlePondClick(event) {
+      if (!observationActive) return;
+      const rect = event.currentTarget.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      let closest = STAGES[0];
+      let minDist = 9999;
+      const coords = [
+        { id: 1, x: 14, y: 62 },
+        { id: 2, x: 34, y: 74 },
+        { id: 3, x: 58, y: 68 },
+        { id: 4, x: 84, y: 59 },
+        { id: 5, x: 77, y: 35 }
+      ];
+      coords.forEach(c => {
+        const dist = Math.hypot(c.x - x, c.y - y);
+        if (dist < minDist) {
+          minDist = dist;
+          closest = STAGES.find(s => s.id === c.id);
+        }
+      });
+      if (closest) openStageModal(closest.id);
     }
 
-    // --- Rendu des Cartes du Cycle (Vue 2) ---
-    function renderCycleCards() {
+    // --- Vue Cycle Biologique ---
+    function renderCycleView() {
       const container = document.getElementById('cycleCardsContainer');
+      if (!container) return;
       container.innerHTML = STAGES.map(s => `
-        <div style="background: #020617; border: 1px solid #1e293b; border-radius: 0.85rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#34d399'" onmouseout="this.style.borderColor='#1e293b'" onclick="openStageModal(${s.id})">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong style="color: #6ee7b7; font-size: 1.05rem;">Étape ${s.id} : ${s.name}</strong>
-            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">${s.duration}</span>
+        <div style="background: #020617; border: 1px solid #1e293b; border-radius: 0.85rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #34d399;">Étape ${s.id} : ${s.name}</h3>
+            <span style="font-size: 0.75rem; color: #6ee7b7; background: rgba(6, 78, 59, 0.4); padding: 0.2rem 0.6rem; border-radius: 9999px; font-family: monospace;">${s.scientific}</span>
           </div>
-          <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">${s.desc}</p>
-          <div style="font-size: 0.78rem; color: #94a3b8; display: flex; gap: 1.25rem; margin-top: 0.25rem;">
-            <span>🫁 <strong>Respiration :</strong> ${s.respiration}</span>
-            <span>🍽️ <strong>Alimentation :</strong> ${s.diet}</span>
+          <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5;">${s.desc}</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.8rem; color: #94a3b8;">
+            <div>⏱️ <strong>Durée :</strong> ${s.duration}</div>
+            <div>🌿 <strong>Habitat :</strong> ${s.habitat}</div>
+            <div>🫁 <strong>Respiration :</strong> ${s.respiration}</div>
+            <div>🪰 <strong>Alimentation :</strong> ${s.diet}</div>
           </div>
         </div>
       `).join('');
     }
 
-    // --- Puzzle de Chronologie (Vue 3) ---
-    let puzzleState = [];
-    let selectedSlot = null;
-
+    // --- Jeu du Puzzle ---
+    let puzzleOrder = [];
     function initPuzzleGame() {
-      puzzleState = [...STAGES].sort(() => Math.random() - 0.5);
-      selectedSlot = null;
-      document.getElementById('puzzleMessage').innerHTML = "";
-      renderPuzzle();
+      puzzleOrder = [1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
+      renderPuzzleSlots();
+      document.getElementById('puzzleMessage').textContent = "";
     }
 
-    function renderPuzzle() {
+    function renderPuzzleSlots() {
       const container = document.getElementById('puzzleSlots');
-      container.innerHTML = puzzleState.map((stage, idx) => `
-        <div class="game-card ${selectedSlot === idx ? 'selected' : ''}" onclick="clickPuzzleCard(${idx})">
-          <div style="font-size: 0.7rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 700;">Emplacement ${idx + 1}</div>
-          <strong style="display: block; font-size: 0.9rem; color: #f8fafc; margin-bottom: 0.25rem;">${stage.name}</strong>
-          <span style="font-size: 0.78rem; color: #34d399;">${stage.respiration.split(' ')[0]}</span>
-        </div>
-      `).join('');
+      if (!container) return;
+      container.innerHTML = puzzleOrder.map((stageId, idx) => {
+        const stage = STAGES.find(s => s.id === stageId);
+        return `
+          <div class="game-card" onclick="swapPuzzleCards(${idx})">
+            <span style="font-size: 0.7rem; color: #34d399; font-weight: 700; display: block; margin-bottom: 0.25rem;">Position ${idx + 1}</span>
+            <div style="font-size: 0.9rem; font-weight: 800; color: #f8fafc;">${stage.name}</div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function clickPuzzleCard(idx) {
-      playDrop();
-      if (selectedSlot === null) {
-        selectedSlot = idx;
+    let selectedPuzzleIdx = null;
+    function swapPuzzleCards(idx) {
+      if (selectedPuzzleIdx === null) {
+        selectedPuzzleIdx = idx;
+        const slots = document.querySelectorAll('#puzzleSlots .game-card');
+        if (slots[idx]) slots[idx].classList.add('selected');
       } else {
-        const temp = puzzleState[selectedSlot];
-        puzzleState[selectedSlot] = puzzleState[idx];
-        puzzleState[idx] = temp;
-        selectedSlot = null;
+        const temp = puzzleOrder[selectedPuzzleIdx];
+        puzzleOrder[selectedPuzzleIdx] = puzzleOrder[idx];
+        puzzleOrder[idx] = temp;
+        selectedPuzzleIdx = null;
+        renderPuzzleSlots();
       }
-      renderPuzzle();
     }
 
     function verifyPuzzle() {
-      const isCorrect = puzzleState.every((s, idx) => s.id === idx + 1);
+      const isCorrect = puzzleOrder.every((val, idx) => val === idx + 1);
       const msg = document.getElementById('puzzleMessage');
       if (isCorrect) {
-        playChime();
-        msg.innerHTML = "<span style='color: #34d399; font-weight: 700;'>🎉 Bravo ! Tu as parfaitement ordonné les 5 étapes du cycle de la grenouille !</span>";
+        msg.style.color = '#34d399';
+        msg.textContent = "🎉 Bravo ! Le cycle biologique est parfaitement reconstitué !";
       } else {
-        playDrop();
-        msg.innerHTML = "<span style='color: #f59e0b; font-weight: 600;'>Certaines étapes ne sont pas encore à leur place. Vérifie bien l'ordre des métamorphoses !</span>";
+        msg.style.color = '#f87171';
+        msg.textContent = "❌ Ce n'est pas tout à fait l'ordre chronologique. Réessaie !";
       }
     }
 
-    // --- Quiz du Naturaliste (Vue 4) ---
-    const QUIZ_DATA = [
+    // --- Quiz du Naturaliste ---
+    const QUIZ_QUESTIONS = [
       {
-        q: "Comment respire le jeune têtard dès son éclosion ?",
-        opts: ["Par des branchies qui captent l'oxygène dissous dans l'eau", "Avec des poumons comme les mammifères", "En retenant sa respiration", "Par le bout de sa queue"],
-        correct: 0,
-        exp: "Le têtard possède des branchies (d'abord externes puis internes) pour respirer sous l'eau avant de développer des poumons !"
+        q: "Combien de temps durent généralement les œufs avant d'éclore ?",
+        options: ["1 à 2 jours", "6 à 21 jours", "6 mois"],
+        correct: 1
       },
       {
-        q: "Que devient la queue du têtard lors de la métamorphose en grenouillette ?",
-        opts: ["Elle tombe et se détache au fond de l'eau", "Elle est résorbée de l'intérieur et sert d'énergie nutritive", "Elle se transforme en cinquième patte", "Elle sèche au soleil"],
-        correct: 1,
-        exp: "La queue est réabsorbée par autophagie cellulaire : elle nourrit le corps pendant la transformation de la bouche !"
+        q: "De quoi se nourrit principalement le jeune têtard nageur ?",
+        options: ["De micro-algues et diatomées (herbivore)", "De petits poissons vivants", "De nectar de fleurs"],
+        correct: 0
       },
       {
-        q: "Quelles pattes apparaissent en premier chez le têtard en développement ?",
-        opts: ["Les pattes arrière", "Les pattes avant", "Les 4 pattes en même temps", "Les petites palmes de la queue"],
-        correct: 0,
-        exp: "Les pattes arrière émergent en premier à la base de la queue pour commencer à propulser le têtard !"
+        q: "Quelles pattes sortent en premier lors de la métamorphose du têtard ?",
+        options: ["Les pattes avant", "Les deux en même temps", "Les pattes arrière"],
+        correct: 2
       },
       {
-        q: "Quel changement d'alimentation s'opère durant la métamorphose ?",
-        opts: ["Le têtard végétarien (algues) devient une grenouille carnivore (insectes)", "Le têtard carnivore devient herbivore", "La grenouille ne se nourrit que d'eau", "Ils ne mangent que des graines"],
-        correct: 0,
-        exp: "Le têtard broute les algues microscopiques, puis son système digestif se raccourcit pour digérer des insectes !"
+        q: "Que devient la queue du têtard lorsque la grenouillette grandit ?",
+        options: ["Elle tombe au fond de l'eau", "Elle est résorbée de l'intérieur pour donner de l'énergie", "Elle se transforme en nageoire dorsale"],
+        correct: 1
       },
       {
-        q: "À quoi sert la gelée transparente autour des œufs ?",
-        opts: ["À faire barrière aux prédateurs et réchauffer l'embryon au soleil", "À faire voler les œufs dans l'air", "À fabriquer de la sève pour les arbres", "À cacher les œufs dans la boue"],
-        correct: 0,
-        exp: "La gélatine gonfle dans l'eau, amortit les chocs et crée un mini effet de serre thermique qui accélère l'éclosion !"
+        q: "Comment la grenouille adulte boit-elle l'eau dont elle a besoin ?",
+        options: ["En aspirant l'eau par sa bouche", "Elle ne boit jamais", "Directement à travers sa peau humide"],
+        correct: 2
       }
     ];
 
-    let quizIdx = 0;
+    let currentQuizIdx = 0;
     let quizScore = 0;
 
-    function initQuiz() {
-      quizIdx = 0;
+    function initQuizGame() {
+      currentQuizIdx = 0;
       quizScore = 0;
       renderQuizQuestion();
     }
 
     function renderQuizQuestion() {
       const container = document.getElementById('quizContainer');
-      if (quizIdx >= QUIZ_DATA.length) {
+      if (!container) return;
+      if (currentQuizIdx >= QUIZ_QUESTIONS.length) {
         container.innerHTML = `
-          <div style="text-align: center; padding: 2rem 0;">
-            <h3 style="color: #34d399; font-size: 1.6rem; margin-bottom: 0.5rem; font-weight: 800;">Quiz Terminé !</h3>
-            <p style="color: #cbd5e1; margin-bottom: 1.25rem; font-size: 1rem;">Tu as obtenu <strong>${quizScore} / ${QUIZ_DATA.length}</strong> bonnes réponses.</p>
-            <button class="tool-btn" style="background: #059669; color: #fff; font-weight: 700; padding: 0.6rem 1.25rem;" onclick="initQuiz()">Recommencer le Quiz</button>
+          <div style="text-align: center; padding: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="font-size: 1.5rem; font-weight: 800; color: #34d399;">Quiz Terminé !</h3>
+            <p style="font-size: 1rem; color: #cbd5e1;">Ton score : <strong>${quizScore} / ${QUIZ_QUESTIONS.length}</strong></p>
+            <button class="tool-btn" style="margin: 0 auto; background: #059669; color: #fff; padding: 0.6rem 1.5rem;" onclick="initQuizGame()">🔄 Recommencer le Quiz</button>
           </div>
         `;
         return;
       }
-      const item = QUIZ_DATA[quizIdx];
+      const q = QUIZ_QUESTIONS[currentQuizIdx];
       container.innerHTML = `
-        <div style="margin-bottom: 1.25rem;">
-          <span style="font-size: 0.78rem; color: #34d399; font-weight: 700; text-transform: uppercase;">Question ${quizIdx + 1} sur ${QUIZ_DATA.length}</span>
-          <h3 style="font-size: 1.15rem; color: #f8fafc; margin-top: 0.35rem; font-weight: 700;">${item.q}</h3>
-        </div>
+        <div style="font-size: 0.8rem; color: #34d399; font-weight: 700; margin-bottom: 0.5rem;">Question ${currentQuizIdx + 1} sur ${QUIZ_QUESTIONS.length}</div>
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.25rem;">${q.q}</h3>
         <div class="quiz-options">
-          ${item.opts.map((opt, i) => `
-            <button class="quiz-btn" onclick="answerQuiz(${i})">${opt}</button>
+          ${q.options.map((opt, idx) => `
+            <button class="quiz-btn" onclick="answerQuiz(${idx})">${String.fromCharCode(65 + idx)}. ${opt}</button>
           `).join('')}
         </div>
-        <div id="quizFeedback" style="font-size: 0.9rem; margin-top: 1rem;"></div>
       `;
     }
 
-    function answerQuiz(optIdx) {
-      const item = QUIZ_DATA[quizIdx];
-      const fb = document.getElementById('quizFeedback');
-      if (optIdx === item.correct) {
-        playChime();
-        quizScore++;
-        fb.innerHTML = `<span style="color: #34d399; font-weight: 700;">✅ Bravo ! ${item.exp}</span>`;
+    function answerQuiz(selectedIdx) {
+      const q = QUIZ_QUESTIONS[currentQuizIdx];
+      if (selectedIdx === q.correct) quizScore++;
+      currentQuizIdx++;
+      renderQuizQuestion();
+    }
+
+    // --- Audio d'ambiance (Web Audio API) ---
+    let audioCtx = null;
+    let isPlaying = false;
+    let timerId = null;
+
+    function toggleAmbience() {
+      const btn = document.getElementById('audioToggleBtn');
+      const icon = document.getElementById('audioIcon');
+      const text = document.getElementById('audioText');
+
+      if (!isPlaying) {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        isPlaying = true;
+        btn.classList.add('active');
+        icon.textContent = '🔊';
+        text.textContent = 'Ambiance Active (Étang)';
+        startFrogChorus();
       } else {
-        playDrop();
-        fb.innerHTML = `<span style="color: #ef4444; font-weight: 700;">❌ Mauvaise réponse. La bonne réponse était : ${item.opts[item.correct]}. ${item.exp}</span>`;
+        isPlaying = false;
+        btn.classList.remove('active');
+        icon.textContent = '🔈';
+        text.textContent = 'Ambiance Silencieuse';
+        if (timerId) clearTimeout(timerId);
       }
-      setTimeout(() => {
-        quizIdx++;
-        renderQuizQuestion();
-      }, 2600);
+    }
+
+    function playCrocNote(freq) {
+      if (!isPlaying || !audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.75, audioCtx.currentTime + 0.15);
+      
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.18);
+    }
+
+    function startFrogChorus() {
+      if (!isPlaying) return;
+      const freqs = [110, 130, 145, 95, 165];
+      const randFreq = freqs[Math.floor(Math.random() * freqs.length)];
+      playCrocNote(randFreq);
+      if (Math.random() > 0.4) {
+        setTimeout(() => playCrocNote(randFreq * 1.15), 120);
+      }
+      const nextTime = Math.random() * 2500 + 1200;
+      timerId = setTimeout(startFrogChorus, nextTime);
     }
   </script>
 </body>

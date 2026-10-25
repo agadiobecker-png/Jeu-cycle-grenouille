@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>L'Étang Magique : Le Cycle de Vie de la Grenouille (Autonome)</title>
-  <meta name="description" content="Jeu ludo-éducatif 2D autonome explorant la métamorphose complète de la grenouille dans un étang nocturne féerique.">
+  <title>L'Étang Magique : Le Cycle de Vie de la Grenouille</title>
+  <meta name="description" content="Jeu ludo-éducatif 2D interactif et autonome explorant la métamorphose complète de la grenouille dans un étang nocturne féerique.">
   <style>
-    /* CSS Reset & Variables */
+    /* --- CSS RESET & VARIABLES --- */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -16,8 +16,9 @@
       --bg-dark: #020617;
       --panel-bg: rgba(15, 23, 42, 0.85);
       --border-color: rgba(16, 185, 129, 0.25);
-      --emerald-glow: #10b981;
-      --turquoise-glow: #06b6d4;
+      --emerald: #10b981;
+      --emerald-light: #34d399;
+      --turquoise: #06b6d4;
       --amber-gold: #f59e0b;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
@@ -33,19 +34,19 @@
       overflow-x: hidden;
     }
 
-    /* Ambient glow */
+    /* Ambient background glow */
     .ambient-glow {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 0;
       background: 
-        radial-gradient(circle at 20% 15%, rgba(6, 182, 212, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 80% 25%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
         radial-gradient(circle at 50% 85%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
     }
 
-    /* Header Top Bar */
+    /* Header & Navigation */
     header {
       position: sticky;
       top: 0;
@@ -62,7 +63,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 2rem;
+      gap: 1.5rem;
     }
     .brand-title {
       font-size: 1.25rem;
@@ -75,7 +76,7 @@
     nav {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
     .nav-btn {
       background: none;
@@ -92,8 +93,8 @@
       color: #f1f5f9;
     }
     .nav-btn.active {
-      color: #34d399;
-      border-bottom: 2px solid #34d399;
+      color: var(--emerald-light);
+      border-bottom: 2px solid var(--emerald-light);
     }
     .audio-btn {
       background: rgba(15, 23, 42, 0.9);
@@ -128,14 +129,14 @@
       width: 100%;
     }
 
-    /* Hero intro */
+    /* Hero section */
     .hero {
       text-align: center;
       margin-bottom: 2rem;
     }
     .hero-badge {
       font-size: 0.75rem;
-      color: #34d399;
+      color: var(--emerald-light);
       font-weight: 600;
       margin-bottom: 0.5rem;
       display: inline-flex;
@@ -152,7 +153,7 @@
       -webkit-text-fill-color: transparent;
     }
     .hero p {
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.95rem;
       max-width: 650px;
       margin: 0 auto;
@@ -173,7 +174,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0.6rem 1.25rem;
-      background: rgba(2, 6, 23, 0.8);
+      background: rgba(2, 6, 23, 0.85);
       border-bottom: 1px solid rgba(16, 185, 129, 0.15);
       gap: 0.75rem;
     }
@@ -212,6 +213,10 @@
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
+      transition: all 0.15s;
+    }
+    .tool-btn:hover {
+      background: #334155;
     }
     .tool-btn.active {
       background: rgba(245, 158, 11, 0.2);
@@ -219,16 +224,16 @@
       color: #fde68a;
     }
 
-    /* Pond Viewport */
+    /* Viewport Container */
     .pond-viewport {
       position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
-      background: #030a16;
+      background: #020b18;
       overflow: hidden;
       user-select: none;
     }
-    .pond-image {
+    .pond-image-layer {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -239,7 +244,7 @@
       top: 48%;
       left: 0;
       right: 0;
-      border-bottom: 1px dashed rgba(6, 182, 212, 0.3);
+      border-bottom: 1px dashed rgba(6, 182, 212, 0.4);
       pointer-events: none;
     }
     .waterline-label {
@@ -248,7 +253,7 @@
       font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: rgba(6, 182, 212, 0.6);
+      color: rgba(6, 182, 212, 0.7);
       font-weight: 700;
     }
 
@@ -257,7 +262,7 @@
       position: absolute;
       transform: translate(-50%, -50%);
       cursor: pointer;
-      z-index: 20;
+      z-index: 25;
       border: none;
       background: none;
       outline: none;
@@ -266,13 +271,13 @@
       position: absolute;
       inset: -6px;
       border-radius: 50%;
-      background: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.35);
       animation: pulseGlow 2s infinite;
     }
     .hotspot-disc {
       position: relative;
-      width: 2rem;
-      height: 2rem;
+      width: 2.1rem;
+      height: 2.1rem;
       border-radius: 50%;
       background: #0f172a;
       border: 2px solid #34d399;
@@ -283,7 +288,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-      transition: transform 0.2s;
+      transition: transform 0.2s, background-color 0.2s;
     }
     .hotspot:hover .hotspot-disc {
       transform: scale(1.15);
@@ -296,7 +301,7 @@
       100% { transform: scale(0.9); opacity: 0; }
     }
 
-    /* Stage Steps Bottom Bar */
+    /* Bottom Stage Strip */
     .steps-strip {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -317,12 +322,7 @@
     }
     .step-tab:hover {
       border-color: #34d399;
-      background: rgba(6, 78, 59, 0.2);
-    }
-    .step-tab.active {
-      background: rgba(6, 78, 59, 0.5);
-      border-color: #10b981;
-      color: #a7f3d0;
+      background: rgba(6, 78, 59, 0.25);
     }
     .step-tab-num {
       font-size: 0.65rem;
@@ -337,7 +337,7 @@
       text-overflow: ellipsis;
     }
 
-    /* Interactive modal */
+    /* Modal Component */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -356,7 +356,7 @@
       background: #0f172a;
       border: 1px solid rgba(16, 185, 129, 0.4);
       border-radius: 1rem;
-      max-width: 700px;
+      max-width: 650px;
       width: 100%;
       overflow: hidden;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
@@ -414,7 +414,7 @@
       color: #a7f3d0;
     }
 
-    /* Chronology Mini-Game */
+    /* Section Panels */
     .game-section {
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
@@ -446,12 +446,6 @@
       box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
       background: rgba(6, 78, 59, 0.4);
     }
-    .game-card.correct {
-      border-color: #059669;
-      background: rgba(6, 78, 59, 0.3);
-    }
-
-    /* Quiz Container */
     .quiz-options {
       display: flex;
       flex-direction: column;
@@ -473,19 +467,6 @@
       border-color: #334155;
       background: #0f172a;
     }
-    .quiz-btn.selected {
-      border-color: #34d399;
-      background: rgba(6, 78, 59, 0.3);
-      color: #a7f3d0;
-    }
-    .quiz-btn.correct {
-      border-color: #10b981;
-      background: rgba(16, 185, 129, 0.2);
-    }
-    .quiz-btn.wrong {
-      border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.2);
-    }
 
     /* Footer */
     footer {
@@ -497,7 +478,6 @@
       background: #020617;
     }
 
-    /* Mobile adjustments */
     @media (max-width: 768px) {
       .steps-strip, .slots-container {
         grid-template-columns: repeat(2, 1fr);
@@ -510,11 +490,11 @@
       }
     }
   </style>
-<script src="/_aistudio-iframe.js?v=6634132a"></script></head>
+</head>
 <body>
   <div class="ambient-glow"></div>
 
-  <!-- Header -->
+  <!-- Header Navigation -->
   <header>
     <div class="header-container">
       <div class="brand-title" onclick="switchTab('pond')">L'Étang Magique</div>
@@ -548,17 +528,23 @@
             <button class="segmented-btn" id="filter-underwater" onclick="setZoneFilter('underwater')">Sous l'Eau</button>
             <button class="segmented-btn" id="filter-surface" onclick="setZoneFilter('surface')">Surface & Berge</button>
           </div>
-          <div style="display: flex; gap: 0.5rem;">
-            <button class="tool-btn" id="obsModeBtn" onclick="toggleObservationMode()">
-              <span>🔍 Mode Observateur</span>
-            </button>
-          </div>
+          <button class="tool-btn" id="obsModeBtn" onclick="toggleObservationMode()">
+            <span>🔍 Mode Observateur</span>
+          </button>
         </div>
 
         <!-- Pond Viewport with Vector SVG & Stylized Artwork -->
         <div class="pond-viewport" id="pondViewport" onclick="handlePondClick(event)">
-          <!-- Embedded High Fidelity Vector Background of the Magical Cross-Section Pond -->
-          <svg class="pond-image" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+          <!-- Primary image with automatic fallback to embedded vector SVG -->
+          <img 
+            src="/src/assets/images/frog_lifecycle_magical_pond_1792904187753.jpg" 
+            alt="Cycle de la grenouille dans un étang magique"
+            class="pond-image-layer"
+            onerror="this.style.display='none'; document.getElementById('svgPondFallback').style.display='block';"
+          />
+
+          <!-- Embedded High Fidelity Vector SVG Fallback (100% autonomous, zero external image files needed) -->
+          <svg id="svgPondFallback" class="pond-image-layer" style="display: none;" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#020617"/>
@@ -582,23 +568,21 @@
               </radialGradient>
             </defs>
 
-            <!-- Sky & Stars -->
+            <!-- Sky & Crescent Moon -->
             <rect x="0" y="0" width="1600" height="450" fill="url(#skyGrad)"/>
-            <!-- Moon -->
             <circle cx="1100" cy="110" r="70" fill="url(#moonGlow)"/>
             <path d="M 1120 70 A 50 50 0 0 0 1080 150 A 42 42 0 1 1 1120 70 Z" fill="#f8fafc"/>
             
             <!-- Underwater Area -->
             <rect x="0" y="430" width="1600" height="470" fill="url(#waterGrad)"/>
 
-            <!-- Waterline Sparkle Ribbon -->
+            <!-- Waterline Sparkle -->
             <line x1="0" y1="430" x2="1600" y2="430" stroke="#38bdf8" stroke-width="4" stroke-opacity="0.7"/>
             <path d="M 0 430 Q 400 422 800 430 T 1600 430" fill="none" stroke="#67e8f9" stroke-width="2" stroke-opacity="0.8"/>
 
-            <!-- Left Underwater: Reeds & Luminous Spawn -->
+            <!-- Left: Reeds & Luminous Spawn -->
             <path d="M 60 900 Q 120 600 140 460" stroke="#047857" stroke-width="8" fill="none"/>
             <path d="M 100 900 Q 160 550 180 440" stroke="#065f46" stroke-width="7" fill="none"/>
-            <!-- Spawn Jelly Cluster -->
             <g transform="translate(180, 580)">
               <circle cx="0" cy="0" r="50" fill="url(#eggGlow)"/>
               <circle cx="-15" cy="-10" r="14" fill="#a5f3fc" opacity="0.8"/><circle cx="-15" cy="-10" r="4" fill="#020617"/>
@@ -608,90 +592,78 @@
               <circle cx="25" cy="15" r="12" fill="#a5f3fc" opacity="0.8"/><circle cx="25" cy="15" r="3" fill="#020617"/>
             </g>
 
-            <!-- Center Underwater: Swimming Tadpoles -->
-            <!-- Tadpole 1 (Early) -->
+            <!-- Center: Tadpoles -->
             <g transform="translate(480, 680)">
               <path d="M -20 0 Q -50 -10 -90 0 Q -50 10 -20 0" fill="#0284c7" opacity="0.7"/>
               <ellipse cx="0" cy="0" rx="28" ry="20" fill="#0369a1"/>
               <circle cx="10" cy="-6" r="4" fill="#f8fafc"/><circle cx="12" cy="-6" r="2" fill="#020617"/>
             </g>
-
-            <!-- Tadpole 2 (With Legs) -->
             <g transform="translate(860, 640)">
               <path d="M -30 0 Q -70 -12 -120 0 Q -70 12 -30 0" fill="#059669" opacity="0.7"/>
               <ellipse cx="0" cy="0" rx="36" ry="24" fill="#10b981"/>
               <circle cx="16" cy="-8" r="5" fill="#f8fafc"/><circle cx="18" cy="-8" r="2.5" fill="#020617"/>
-              <!-- Back legs -->
               <path d="M -15 12 L -30 35 L -18 45" stroke="#34d399" stroke-width="4" fill="none"/>
               <path d="M -15 -12 L -30 -35 L -18 -45" stroke="#34d399" stroke-width="4" fill="none"/>
             </g>
 
-            <!-- Right Shore: Mossy Rock & Froglet -->
+            <!-- Right Shore: Rock & Froglet -->
             <path d="M 1200 900 Q 1280 600 1600 500 L 1600 900 Z" fill="#1e293b"/>
             <path d="M 1230 650 Q 1350 560 1550 520" stroke="#10b981" stroke-width="12" stroke-linecap="round" fill="none"/>
-            <!-- Froglet on Rock -->
             <g transform="translate(1360, 540)">
               <path d="M -20 15 Q -50 25 -70 20" stroke="#34d399" stroke-width="5" fill="none"/>
               <ellipse cx="0" cy="0" rx="28" ry="18" fill="#10b981" transform="rotate(-15)"/>
               <circle cx="16" cy="-8" r="7" fill="#fbbf24"/><circle cx="18" cy="-8" r="3.5" fill="#020617"/>
             </g>
 
-            <!-- Central Surface: Lily Pad & Adult Frog -->
-            <!-- Lily Pad -->
+            <!-- Surface: Lily Pad & Adult Frog -->
             <ellipse cx="1200" cy="380" rx="190" ry="50" fill="#059669"/>
             <path d="M 1200 380 L 1380 370" stroke="#047857" stroke-width="3"/>
-            <!-- Water Lily Flower -->
             <path d="M 1340 370 Q 1360 330 1370 320 Q 1380 330 1400 370 Z" fill="#ffffff" opacity="0.9"/>
             <circle cx="1370" cy="355" r="10" fill="#fde047"/>
-            <!-- Adult Frog -->
             <g transform="translate(1180, 310)">
-              <!-- Body -->
               <ellipse cx="0" cy="0" rx="48" ry="34" fill="#10b981"/>
-              <!-- Belly -->
               <ellipse cx="6" cy="6" rx="30" ry="20" fill="#a7f3d0"/>
-              <!-- Head & Eye -->
               <circle cx="-25" cy="-20" r="12" fill="#fbbf24"/><circle cx="-25" cy="-20" r="6" fill="#020617"/>
               <circle cx="15" cy="-22" r="12" fill="#fbbf24"/><circle cx="15" cy="-22" r="6" fill="#020617"/>
-              <!-- Limbs -->
               <path d="M 35 15 Q 60 25 50 45" stroke="#059669" stroke-width="7" fill="none"/>
               <path d="M -20 20 Q -40 35 -30 45" stroke="#059669" stroke-width="6" fill="none"/>
             </g>
 
-            <!-- Floating Fireflies in the night air -->
+            <!-- Fireflies -->
             <circle cx="650" cy="180" r="6" fill="#fef08a" opacity="0.9"/>
             <circle cx="820" cy="240" r="8" fill="#fef08a" opacity="0.95"/>
             <circle cx="1020" cy="290" r="5" fill="#fef08a" opacity="0.85"/>
             <circle cx="1450" cy="210" r="7" fill="#fef08a" opacity="0.9"/>
           </svg>
 
-          <!-- Waterline indicator line -->
+          <!-- Waterline indicator -->
           <div class="waterline-split">
             <span class="waterline-label" style="left: 1rem;">Surface & Nénuphars ↑</span>
             <span class="waterline-label" style="right: 1rem;">↓ Profondeurs Aquatiques</span>
           </div>
 
           <!-- Hotspot Pins -->
-          <button class="hotspot" id="pin-1" style="left: 15%; top: 65%;" onclick="openStageModal(1)" title="Étape 1: Les Œufs">
+          <button class="hotspot" id="pin-1" style="left: 14%; top: 62%;" onclick="openStageModal(1)" title="Étape 1: Les Œufs">
             <div class="hotspot-ring"></div>
             <div class="hotspot-disc">1</div>
           </button>
 
-          <button class="hotspot" id="pin-2" style="left: 32%; top: 76%;" onclick="openStageModal(2)" title="Étape 2: Le Têtard Nageur">
+          <button class="hotspot" id="pin-2" style="left: 34%; top: 74%;" onclick="openStageModal(2)" title="Étape 2: Le Têtard Nageur">
             <div class="hotspot-ring"></div>
             <div class="hotspot-disc">2</div>
           </button>
 
-          <button class="hotspot" id="pin-3" style="left: 56%; top: 71%;" onclick="openStageModal(3)" title="Étape 3: Le Têtard à Pattes">
+          <button class="hotspot" id="pin-3" style="left: 58%; top: 68%;" onclick="openStageModal(3)" title="Étape 3: Le Têtard à Pattes">
             <div class="hotspot-ring"></div>
             <div class="hotspot-disc">3</div>
           </button>
 
-          <button class="hotspot" id="pin-4" style="left: 85%; top: 60%;" onclick="openStageModal(4)" title="Étape 4: La Grenouillette">
+          <button class="hotspot" id="pin-4" style="left: 84%; top: 59%;" onclick="openStageModal(4)" title="Étape 4: La Grenouillette">
             <div class="hotspot-ring"></div>
             <div class="hotspot-disc">4</div>
           </button>
 
-          <button class="hotspot" id="pin-5" style="left: 75%; top: 35%;" onclick="openStageModal(5)" title="Étape 5: La Grenouille Adulte">
+          <button class="hotspot" id="pin-5" style="left: 77%; top: 35%;" onclick="openStageModal(5)" title="Étape 5: La Grenouille Adulte">
             <div class="hotspot-ring"></div>
             <div class="hotspot-disc">5</div>
           </button>
@@ -1088,7 +1060,6 @@
       if (selectedSlot === null) {
         selectedSlot = idx;
       } else {
-        // Swap
         const temp = puzzleState[selectedSlot];
         puzzleState[selectedSlot] = puzzleState[idx];
         puzzleState[idx] = temp;
@@ -1186,3 +1157,4 @@
   </script>
 </body>
 </html>
+      
